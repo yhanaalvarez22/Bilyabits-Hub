@@ -15,16 +15,17 @@ module.exports = {
             return;
         }
 
+        api.sendMessage("Processing your question...", event.threadID);
+
         try {
-            const loadingMessage = await api.sendMessage("Processing your question...", event.threadID);
             const response = await axios.get(`https://ajiro.gleeze.com/api/ai?model=grok-2&system=You are a LLM called groq invented by elon musk&question=${encodeURIComponent(question)}`);
             if (response.data.success) {
-                api.editMessage(response.data.response, event.threadID, loadingMessage.messageID);
+                api.sendMessage(response.data.response, event.threadID);
             } else {
-                api.editMessage("There was an error processing your request. Please try again later.", event.threadID, loadingMessage.messageID);
+                api.sendMessage("There was an error processing your request. Please try again later.", event.threadID);
             }
         } catch (error) {
-            api.editMessage("There was an error processing your request. Please try again later.", event.threadID, loadingMessage.messageID);
+            api.sendMessage("There was an error processing your request. Please try again later.", event.threadID);
         }
     }
 };
