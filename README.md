@@ -1,7 +1,12 @@
-# autobot-test
+# Bilyabits-Hub
 
 ## Introduction
-Autobot-test is a powerful automation tool designed to streamline various development workflows. It aims to simplify repetitive tasks, enhance productivity, and ensure consistency in your projects.
+Bilyabits-Hub is a facebook chat bot automated with various commands to help you access the bot freely.
+
+
+## Credits
+`Owner of the FCA` [Don't know]
+`FCA: `[Click here](https://www.npmjs.com/package/chatbox-fca-remake)
 
 ## How to Set It Up
 1. **Clone the Repository(For developmental use only):**
