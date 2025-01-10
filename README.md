@@ -4,24 +4,27 @@
 Autobot-test is a powerful automation tool designed to streamline various development workflows. It aims to simplify repetitive tasks, enhance productivity, and ensure consistency in your projects.
 
 ## How to Set It Up
-1. **Clone the Repository:**
+1. **Clone the Repository(For developmental use only):**
    ```
    git clone https://github.com/carljohnvillavito/autobot-test.git
    cd autobot-test
    ```
 
-2. **Install Dependencies:**
+2. **Config.json Settings:**
+   Setup your account, prefix, and port on `config.json`
+
+3. **Root Directory:**
    ```
-   npm install
+   ./
    ```
 
-3. **Configure the Project:**
-   - Copy the `config.example.json` to `config.json`.
-   - Update the `config.json` file with your specific configuration details.
-
-4. **Run the Project:**
+4. **Install Dependencies:**
    ```
-   npm start
+   npm install fs express chatbox-fca-remake axios
+   ```
+5. **Run the project/Build Commannd:**
+   ```
+   node runApp.js
    ```
 
 ## Contacts
