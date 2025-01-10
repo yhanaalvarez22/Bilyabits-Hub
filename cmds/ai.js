@@ -17,7 +17,7 @@ module.exports = {
 
         try {
             const loadingMessage = await api.sendMessage("Processing your question...", event.threadID);
-            const response = await axios.get(`https://ajiro.gleeze.com/api/ai?model=grok-2&system=You are a LLM called groq invented by elon musk.&question=${encodeURIComponent(question)}`);
+            const response = await axios.get(`https://ajiro.gleeze.com/api/ai?model=grok-2&system=You are a LLM called groq invented by elon musk&question=${encodeURIComponent(question)}`);
             if (response.data.success) {
                 api.editMessage(response.data.response, event.threadID, loadingMessage.messageID);
             } else {
