@@ -1,11 +1,13 @@
 const fs = require("fs-extra");
 const axios = require("axios");
 
+const replyHandlers = {};
+
 module.exports = {
     name: 'post',
     description: 'Create a new post on Facebook',
     async execute(api, event) {
-        const { threadID, messageID, senderID, body, attachments } = event;
+        const { threadID, messageID, senderID } = event;
         const uuid = getGUID();
         const formData = {
             "input": {
@@ -17,7 +19,7 @@ module.exports = {
                 "audience": {
                     "privacy": {
                         "allow": [],
-                        "base_state": "FRIENDS", // SELF EVERYONE
+                        "base_state": "FRIENDS",
                         "deny": [],
                         "tag_expansion_state": "UNSPECIFIED"
                     }
@@ -69,20 +71,20 @@ module.exports = {
         };
 
         api.sendMessage(`Choose an audience that can see this article of yours\n1. Everyone\n2. Friend\n3. Only me`, threadID, (e, info) => {
-            global.GoatBot.onReply.set(info.messageID, {
+            replyHandlers[info.messageID] = {
                 commandName: 'post',
                 messageID: info.messageID,
                 author: senderID,
                 formData,
                 type: "whoSee"
-            });
+            };
         }, messageID);
     },
-    async onReply(Reply, event, api) {
-        const handleReply = Reply;
-        const { type, author, formData } = handleReply;
-        if (event.senderID != author) return;
+    async onReply(event, api) {
+        const handleReply = replyHandlers[event.messageID];
+        if (!handleReply || event.senderID != handleReply.author) return;
 
+        const { type, formData } = handleReply;
         const { threadID, messageID, attachments, body } = event;
         const botID = api.getCurrentUserID();
 
@@ -103,26 +105,26 @@ module.exports = {
             formData.input.audience.privacy.base_state = body == 1 ? "EVERYONE" : body == 2 ? "FRIENDS" : "SELF";
             api.unsendMessage(handleReply.messageID, () => {
                 api.sendMessage(`Reply to this message with the content of the article. If you want to leave it blank, please reply with 0.`, threadID, (e, info) => {
-                    global.GoatBot.onReply.set(info.messageID, {
+                    replyHandlers[info.messageID] = {
                         commandName: 'post',
                         messageID: info.messageID,
-                        author: author,
+                        author: handleReply.author,
                         formData,
                         type: "content"
-                    });
+                    };
                 }, messageID);
             });
         } else if (type == "content") {
             if (event.body != "0") formData.input.message.text = event.body;
             api.unsendMessage(handleReply.messageID, () => {
                 api.sendMessage(`Reply to this message with a photo or video (you can send multiple attachments). To post without attachments, reply with 0.`, threadID, (e, info) => {
-                    global.GoatBot.onReply.set(info.messageID, {
+                    replyHandlers[info.messageID] = {
                         commandName: 'post',
                         messageID: info.messageID,
-                        author: author,
+                        author: handleReply.author,
                         formData,
                         type: "media"
-                    });
+                    };
                 }, messageID);
             });
         } else if (type == "media") {
@@ -164,6 +166,7 @@ module.exports = {
 
             api.httpPost('https://www.facebook.com/api/graphql/', form, (e, info) => {
                 api.unsendMessage(handleReply.messageID);
+                delete replyHandlers[handleReply.messageID];
                 try {
                     if (e) throw e;
                     if (typeof info == "string") info = JSON.parse(info.replace("for (;;);", ""));
@@ -176,7 +179,6 @@ module.exports = {
                     } catch (e) {}
                     return api.sendMessage(`» Post created successfully\n» postID: ${postID}\n» urlPost: ${urlPost}`, threadID, messageID);
                 } catch (e) {
-                    // Handle any errors that may occur during the post creation.
                     return api.sendMessage(`Post creation failed, please try again later`, threadID, messageID);
                 }
             });
