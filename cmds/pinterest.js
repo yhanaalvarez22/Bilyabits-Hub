@@ -5,7 +5,7 @@ module.exports = {
     description: "Fetch Pinterest URLs based on user prompt and convert them into photo attachments",
     async execute(api, event, args = []) {
         const { threadID, messageID } = event;
-        const prompt = args.join(" ");
+        const prompt = args.join(" ").trim();
 
         if (!prompt) {
             return api.sendMessage("Please provide a prompt to search for Pinterest images.\nUsage: {prefix}pinterest <search prompt>", threadID, messageID);
