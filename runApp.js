@@ -4,7 +4,13 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;  // Use the PORT environment variable or default to 3000
 
-// Simple bot that responds when you say "test" or "/stop"
+// Load commands from the cmds folder
+const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'));
+console.log("=====COMMANDS LOADED=====");
+commandFiles.forEach(file => {
+    console.log(`[~] ${file.replace('.js', '')}`);
+});
+
 login({
     email: "ronaldcoldman2025@gmail.com",
     password: "Ronald2025coldman"
@@ -28,21 +34,7 @@ login({
     const stopListening = api.listenMqtt((err, event) => {
         if (err) return console.error(err);  // Handle any errors while listening
 
-        // Switch case to handle different types of events
-        switch (event.type) {
-            case "message":
-                if (event.body === '/stop') {  // If the message is "/stop"
-                    api.sendMessage("Goodbye…", event.threadID);  // Send "Goodbye" message
-                    return stopListening();  // Stop listening to events
-                }
-                if (event.body.toLowerCase() === 'test') {  // If the message is "test" (case-insensitive)
-                    api.sendMessage("TEST BOT: " + event.body, event.threadID);  // Send a test response
-                }
-                break;
-            case "event":
-                console.log(event);  // Log any other event type
-                break;
-        }
+        // (Remove simple command program)
     });
 });
 
