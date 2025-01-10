@@ -37,6 +37,21 @@ login({
         autoMarkRead: false  // Disable auto marking of messages as read
     });
 
+    // Function to change bot's bio
+    function updateBotBio(api) {
+        const bio = `Name: ${config.botName}\nPrefix: ${config.prefix}\nOwner: @[100013036275290:999:Him]`;
+        api.changeBio(bio, (err) => {
+            if (err) {
+                console.error("Failed to update bot bio:", err);
+            } else {
+                console.log("Bot bio updated successfully.");
+            }
+        });
+    }
+
+    // Call the function to update bot's bio after login
+    updateBotBio(api);
+
     // Function to handle commands
     function handleCommand(event) {
         const prefix = config.prefix;
