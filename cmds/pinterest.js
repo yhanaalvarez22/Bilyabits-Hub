@@ -7,7 +7,7 @@ module.exports = {
     description: "Fetch Pinterest URLs based on user prompt and convert them into photo attachments",
     async execute(api, event) {
         const message = event.body.trim();
-        const prefix = `${config.prefix}ai`;
+        const prefix = `${config.prefix}pinterest`;
         const prompt = message.slice(prefix.length).trim();
 
         if (!prompt) {
