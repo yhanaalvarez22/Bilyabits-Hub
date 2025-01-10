@@ -5,9 +5,10 @@ const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 module.exports = {
     name: "pinterest",
     description: "Fetch Pinterest URLs based on user prompt and convert them into photo attachments",
-    async execute(api, event, args = []) {
-        const { threadID, messageID } = event;
-        const prompt = args.join(" ");
+    async execute(api, event) {
+        const message = event.body.trim();
+        const prefix = `${config.prefix}ai`;
+        const prompt = message.slice(prefix.length).trim();
 
         if (!prompt) {
             api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, threadID, messageID);
