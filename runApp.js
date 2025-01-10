@@ -9,11 +9,14 @@ const port = config.port || 3000;  // Use the port from config.json or default t
 
 // Load commands from the cmds folder
 const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'));
+console.log(\n\n\n);
 console.log("=====COMMANDS LOADED=====");
+console.log("====={}=====");
 commandFiles.forEach(file => {
     console.log(`[~] ${file.replace('.js', '')}`);
+    console.log("====={}=====");
 });
-
+console.log(\n\n\n)
 login({
     email: config.email,
     password: config.password
