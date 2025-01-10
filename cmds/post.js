@@ -7,7 +7,15 @@ module.exports = {
     name: 'post',
     description: 'Create a new post on Facebook',
     async execute(api, event) {
-        const { threadID, messageID, senderID } = event;
+        const { threadID, messageID, senderID, body } = event;
+        const args = body.trim().split(/ +/);
+        const postContent = args.slice(1, -1).join(' ');
+        const audience = args.slice(-1)[0].toLowerCase();
+
+        if (!postContent || !["everyone", "friends", "self"].includes(audience)) {
+            return api.sendMessage(`Usage: {prefix}post <post content> <audience>\nAudience options: everyone, friends, self`, threadID, messageID);
+        }
+
         const uuid = getGUID();
         const formData = {
             "input": {
@@ -19,14 +27,14 @@ module.exports = {
                 "audience": {
                     "privacy": {
                         "allow": [],
-                        "base_state": "FRIENDS",
+                        "base_state": audience.toUpperCase(),
                         "deny": [],
                         "tag_expansion_state": "UNSPECIFIED"
                     }
                 },
                 "message": {
                     "ranges": [],
-                    "text": ""
+                    "text": postContent
                 },
                 "with_tags_ids": [],
                 "inline_activities": [],
@@ -70,13 +78,13 @@ module.exports = {
             "canUserManageOffers": false
         };
 
-        api.sendMessage(`Choose an audience that can see this article of yours\n1. Everyone\n2. Friend\n3. Only me`, threadID, (e, info) => {
+        api.sendMessage(`Reply to this message with a photo or video (you can send multiple attachments). To post without attachments, reply with 0.`, threadID, (e, info) => {
             replyHandlers[info.messageID] = {
                 commandName: 'post',
                 messageID: info.messageID,
                 author: senderID,
                 formData,
-                type: "whoSee"
+                type: "media"
             };
         }, messageID);
     },
@@ -84,7 +92,7 @@ module.exports = {
         const handleReply = replyHandlers[event.messageID];
         if (!handleReply || event.senderID != handleReply.author) return;
 
-        const { type, formData } = handleReply;
+        const { formData } = handleReply;
         const { threadID, messageID, attachments, body } = event;
         const botID = api.getCurrentUserID();
 
@@ -100,89 +108,60 @@ module.exports = {
             return uploads;
         }
 
-        if (type == "whoSee") {
-            if (!["1", "2", "3"].includes(body)) return api.sendMessage('Please choose one of the three options above', threadID, messageID);
-            formData.input.audience.privacy.base_state = body == 1 ? "EVERYONE" : body == 2 ? "FRIENDS" : "SELF";
-            api.unsendMessage(handleReply.messageID, () => {
-                api.sendMessage(`Reply to this message with the content of the article. If you want to leave it blank, please reply with 0.`, threadID, (e, info) => {
-                    replyHandlers[info.messageID] = {
-                        commandName: 'post',
-                        messageID: info.messageID,
-                        author: handleReply.author,
-                        formData,
-                        type: "content"
-                    };
-                }, messageID);
-            });
-        } else if (type == "content") {
-            if (event.body != "0") formData.input.message.text = event.body;
-            api.unsendMessage(handleReply.messageID, () => {
-                api.sendMessage(`Reply to this message with a photo or video (you can send multiple attachments). To post without attachments, reply with 0.`, threadID, (e, info) => {
-                    replyHandlers[info.messageID] = {
-                        commandName: 'post',
-                        messageID: info.messageID,
-                        author: handleReply.author,
-                        formData,
-                        type: "media"
-                    };
-                }, messageID);
-            });
-        } else if (type == "media") {
-            if (event.body != "0") {
-                const allStreamFile = [];
-                for (const attach of attachments) {
-                    if (attach.type === "photo") {
-                        const getFile = (await axios.get(attach.url, { responseType: "arraybuffer" })).data;
-                        fs.writeFileSync(__dirname + `/cache/imagePost.png`, Buffer.from(getFile));
-                        allStreamFile.push(fs.createReadStream(__dirname + `/cache/imagePost.png`));
-                    } else if (attach.type === "video") {
-                        const videoFile = await axios.get(attach.url, { responseType: "stream" });
-                        const videoPath = __dirname + `/cache/videoPost.mp4`;
-                        videoFile.data.pipe(fs.createWriteStream(videoPath));
-                        allStreamFile.push(fs.createReadStream(videoPath));
-                    }
-                }
-                const uploadFiles = await uploadAttachments(allStreamFile);
-                for (let result of uploadFiles) {
-                    if (typeof result == "string") result = JSON.parse(result.replace("for (;;);", ""));
-
-                    if (result.payload && result.payload.fbid) {
-                        formData.input.attachments.push({
-                            "photo": {
-                                "id": result.payload.fbid.toString(),
-                            }
-                        });
-                    }
+        if (body != "0") {
+            const allStreamFile = [];
+            for (const attach of attachments) {
+                if (attach.type === "photo") {
+                    const getFile = (await axios.get(attach.url, { responseType: "arraybuffer" })).data;
+                    fs.writeFileSync(__dirname + `/cache/imagePost.png`, Buffer.from(getFile));
+                    allStreamFile.push(fs.createReadStream(__dirname + `/cache/imagePost.png`));
+                } else if (attach.type === "video") {
+                    const videoFile = await axios.get(attach.url, { responseType: "stream" });
+                    const videoPath = __dirname + `/cache/videoPost.mp4`;
+                    videoFile.data.pipe(fs.createWriteStream(videoPath));
+                    allStreamFile.push(fs.createReadStream(videoPath));
                 }
             }
+            const uploadFiles = await uploadAttachments(allStreamFile);
+            for (let result of uploadFiles) {
+                if (typeof result == "string") result = JSON.parse(result.replace("for (;;);", ""));
 
-            const form = {
-                av: botID,
-                fb_api_req_friendly_name: "ComposerStoryCreateMutation",
-                fb_api_caller_class: "RelayModern",
-                doc_id: "7711610262190099",
-                variables: JSON.stringify(formData)
-            };
-
-            api.httpPost('https://www.facebook.com/api/graphql/', form, (e, info) => {
-                api.unsendMessage(handleReply.messageID);
-                delete replyHandlers[handleReply.messageID];
-                try {
-                    if (e) throw e;
-                    if (typeof info == "string") info = JSON.parse(info.replace("for (;;);", ""));
-                    const postID = info.data.story_create.story.legacy_story_hideable_id;
-                    const urlPost = info.data.story_create.story.url;
-                    if (!postID) throw info.errors;
-                    try {
-                        fs.unlinkSync(__dirname + "/cache/imagePost.png");
-                        fs.unlinkSync(__dirname + "/cache/videoPost.mp4");
-                    } catch (e) {}
-                    return api.sendMessage(`» Post created successfully\n» postID: ${postID}\n» urlPost: ${urlPost}`, threadID, messageID);
-                } catch (e) {
-                    return api.sendMessage(`Post creation failed, please try again later`, threadID, messageID);
+                if (result.payload && result.payload.fbid) {
+                    formData.input.attachments.push({
+                        "photo": {
+                            "id": result.payload.fbid.toString(),
+                        }
+                    });
                 }
-            });
+            }
         }
+
+        const form = {
+            av: botID,
+            fb_api_req_friendly_name: "ComposerStoryCreateMutation",
+            fb_api_caller_class: "RelayModern",
+            doc_id: "7711610262190099",
+            variables: JSON.stringify(formData)
+        };
+
+        api.httpPost('https://www.facebook.com/api/graphql/', form, (e, info) => {
+            api.unsendMessage(handleReply.messageID);
+            delete replyHandlers[handleReply.messageID];
+            try {
+                if (e) throw e;
+                if (typeof info == "string") info = JSON.parse(info.replace("for (;;);", ""));
+                const postID = info.data.story_create.story.legacy_story_hideable_id;
+                const urlPost = info.data.story_create.story.url;
+                if (!postID) throw info.errors;
+                try {
+                    fs.unlinkSync(__dirname + "/cache/imagePost.png");
+                    fs.unlinkSync(__dirname + "/cache/videoPost.mp4");
+                } catch (e) {}
+                return api.sendMessage(`» Post created successfully\n» postID: ${postID}\n» urlPost: ${urlPost}`, threadID, messageID);
+            } catch (e) {
+                return api.sendMessage(`Post creation failed, please try again later`, threadID, messageID);
+            }
+        });
     }
 };
 
