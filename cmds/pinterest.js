@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
     name: "pinterest",
     description: "Fetch Pinterest URLs based on user prompt and convert them into photo attachments",
-    async execute(api, event, args) {
+    async execute(api, event, args = []) {
         const { threadID, messageID } = event;
         const prompt = args.join(" ");
 
