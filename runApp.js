@@ -39,7 +39,7 @@ login({
 
     // Function to change bot's bio
     function updateBotBio(api) {
-        const bio = `Name: ${config.botName}\nPrefix: ${config.prefix}\nOwner: @[100013036275290:999:Him]`;
+        const bio = `Prefix: ${config.prefix}\nOwner: ${config.botOwner}`;
         api.changeBio(bio, (err) => {
             if (err) {
                 console.error("Failed to update bot bio:", err);
