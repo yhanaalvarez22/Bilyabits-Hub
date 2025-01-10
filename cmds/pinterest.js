@@ -29,7 +29,7 @@ module.exports = {
                 api.sendMessage("No images found for the given prompt.", event.threadID, event.messageID);
             }
         } catch (error) {
-            api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later.", threadID, messageID);
+            api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later.", event.threadID, event.messageID);
         }
     }
 };
