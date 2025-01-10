@@ -1,17 +1,21 @@
 const axios = require('axios');
+const fs = require('fs');
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = {
     name: "pinterest",
     description: "Fetch Pinterest URLs based on user prompt and convert them into photo attachments",
     async execute(api, event) {
-        const { threadID, messageID, body } = event;
-        const prompt = body.trim();
+        const message = event.body.trim();
+        const prefix = `${config.prefix}pinterest`;
+        const prompt = message.slice(prefix.length).trim();
 
         if (!prompt) {
-            return api.sendMessage("Please provide a prompt to search for Pinterest images.\nUsage: {prefix}pinterest <search prompt>", threadID, messageID);
+            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, event.threadID);
+            return;
         }
 
-        api.sendMessage("Fetching images from Pinterest, please wait...", threadID, messageID);
+        api.sendMessage("Fetching images from Pinterest, please wait...", event.threadID);
 
         try {
             const response = await axios.get(`https://ajiro.gleeze.com/api/pinterest?text=${encodeURIComponent(prompt)}`);
@@ -22,13 +26,13 @@ module.exports = {
                     type: "photo",
                     url
                 }));
-                api.sendMessage({ attachment: attachments }, threadID);
+                api.sendMessage({ attachment: attachments }, event.threadID);
             } else {
-                api.sendMessage("No images found for the given prompt.", threadID, messageID);
+                api.sendMessage("No images found for the given prompt.", event.threadID);
             }
         } catch (error) {
             console.error('API Error:', error); // Log any errors
-            api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later.", threadID, messageID);
+            api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later.", event.threadID);
         }
     }
 };
