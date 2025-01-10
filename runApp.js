@@ -1,5 +1,8 @@
 const fs = require("fs");
 const login = require("chatbox-fca-remake");
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 3000;  // Use the PORT environment variable or default to 3000
 
 // Simple bot that responds when you say "test" or "/stop"
 login({
@@ -41,4 +44,14 @@ login({
                 break;
         }
     });
+});
+
+// Define a simple route
+app.get("/", (req, res) => {
+    res.send("Bot is running");
+});
+
+// Start the Express server
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
