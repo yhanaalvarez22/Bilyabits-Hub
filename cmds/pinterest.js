@@ -1,6 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+const stream = require('stream');
 
 module.exports = {
     name: "pinterest",
@@ -11,20 +12,23 @@ module.exports = {
         const prompt = message.slice(prefix.length).trim();
 
         if (!prompt) {
-            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, event.threadID);
+            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, event.threadID, event.messageID);
             return;
         }
 
-        api.sendMessage("Fetching images from Pinterest, please wait...", event.threadID);
+        api.sendMessage("Fetching images from Pinterest, please wait...", event.threadID, event.messageID);
 
         try {
             const response = await axios.get(`https://ajiro.gleeze.com/api/pinterest?text=${encodeURIComponent(prompt)}`);
             console.log('API Response:', response.data); // Log the API response
 
             if (response.data.status && response.data.result.length > 0) {
-                const attachments = response.data.result.map(url => ({
-                    type: "photo",
-                    url
+                const attachments = await Promise.all(response.data.result.map(async url => {
+                    const res = await axios.get(url, { responseType: 'stream' });
+                    return {
+                        type: 'photo',
+                        stream: res.data
+                    };
                 }));
                 api.sendMessage({ attachment: attachments }, event.threadID);
             } else {
