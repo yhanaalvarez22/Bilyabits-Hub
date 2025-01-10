@@ -11,11 +11,11 @@ module.exports = {
         const prompt = message.slice(prefix.length).trim();
 
         if (!prompt) {
-            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, threadID, messageID);
+            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, event.threadID, event.messageID);
             return;
         }
 
-        api.sendMessage("Fetching images from Pinterest, please wait...", threadID, messageID);
+        api.sendMessage("Fetching images from Pinterest, please wait...", event.threadID, event.messageID);
 
         try {
             const response = await axios.get(`https://api.joshweb.click/api/pinterest?q=${encodeURIComponent(prompt)}`);
@@ -24,9 +24,9 @@ module.exports = {
                     type: "photo",
                     url
                 }));
-                api.sendMessage({ attachment: attachments }, threadID);
+                api.sendMessage({ attachment: attachments }, event.threadID, event.messageID);
             } else {
-                api.sendMessage("No images found for the given prompt.", threadID, messageID);
+                api.sendMessage("No images found for the given prompt.", event.threadID, event.messageID);
             }
         } catch (error) {
             api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later.", threadID, messageID);
