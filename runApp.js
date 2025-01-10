@@ -14,8 +14,9 @@ console.log("=====COMMANDS LOADED=====");
 console.log("====={}=====");
 commandFiles.forEach(file => {
     console.log(`[~] ${file.replace('.js', '')}`);
-    console.log("====={}=====");
+    
 });
+console.log("====={}=====");
 console.log("\n\n\n")
 login({
     email: config.email,
