@@ -5,6 +5,15 @@ const app = express();
 
 // Load configuration from config.json
 const config = JSON.parse(fs.readFileSync("config.json", "utf8"));
+
+// Load appstate from appstate.json
+let appState = null;
+try {
+    appState = JSON.parse(fs.readFileSync("appstate.json", "utf8"));
+} catch (error) {
+    console.error("Failed to load appstate.json", error);
+}
+
 const port = config.port || 3000;  // Use the port from config.json or default to 3000
 
 // Load commands from the cmds folder
@@ -25,12 +34,12 @@ if (config.loginMethod.email && config.loginMethod.password) {
         email: config.loginMethod.email,
         password: config.loginMethod.password
     };
-} else if (config.loginMethod.appstate && Object.keys(config.loginMethod.appstate).length !== 0) {
+} else if (appState && appState.length !== 0) {
     loginCredentials = {
-        appState: config.loginMethod.appstate
+        appState: appState
     };
 } else {
-    console.error("No valid login method found in config.json");
+    console.error("No valid login method found in config.json or appstate.json");
     process.exit(1);
 }
 
