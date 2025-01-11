@@ -41,7 +41,7 @@ module.exports = {
                 api.sendMessage("No images found for the given prompt.", event.threadID, event.messageID);
             }
         } catch (error) {
-            api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later.", event.threadID, event.messageID);
+            api.sendMessage("An error occurred while fetching images from Pinterest. Please try again later. \n Error: \n" + error, event.threadID, event.messageID);
             console.error(error);
         }
     }
