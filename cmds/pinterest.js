@@ -9,12 +9,16 @@ module.exports = {
     async execute(api, event) {
         const message = event.body.trim();
         const prefix = `${config.prefix}pinterest`;
-        const prompt = message.slice(prefix.length).trim();
+        const input = message.slice(prefix.length).trim();
 
-        if (!prompt) {
-            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt>`, event.threadID, event.messageID);
+        if (!input) {
+            api.sendMessage(`Please provide a prompt to search for Pinterest images.\nUsage: ${config.prefix}pinterest <search prompt> - <number of photos>`, event.threadID, event.messageID);
             return;
         }
+
+        const parts = input.split('-').map(part => part.trim());
+        const prompt = parts[0];
+        const numPhotos = parseInt(parts[1], 10) || 6;
 
         api.sendMessage("Fetching images from Pinterest, please wait...", event.threadID, event.messageID);
 
@@ -26,12 +30,15 @@ module.exports = {
                     fs.mkdirSync(dumpDir);
                 }
 
-                const attachments = await Promise.all(response.data.result.map(async (url, index) => {
-                    const imagePath = path.join(dumpDir, `pinterest${index}.jpeg`);
+                const attachments = [];
+
+                for (let i = 0; i < Math.min(numPhotos, response.data.result.length); i++) {
+                    const url = response.data.result[i];
+                    const imagePath = path.join(dumpDir, `pinterest${i}.jpeg`);
                     const imageResponse = await axios.get(url, { responseType: 'arraybuffer' });
                     fs.writeFileSync(imagePath, imageResponse.data);
-                    return fs.createReadStream(imagePath);
-                }));
+                    attachments.push(fs.createReadStream(imagePath));
+                }
 
                 api.sendMessage({ attachment: attachments }, event.threadID, event.messageID);
 
