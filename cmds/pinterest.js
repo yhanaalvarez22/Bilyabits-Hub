@@ -27,7 +27,7 @@ module.exports = {
                 }
 
                 const attachments = await Promise.all(response.data.result.map(async (url, index) => {
-                    const imagePath = path.join(dumpDir, `pinterest${index}.jpeg`);
+                    const imagePath = path.join(dumpDir, `pinterest${index}.jpg`);
                     const imageResponse = await axios.get(url, { responseType: 'arraybuffer' });
                     fs.writeFileSync(imagePath, imageResponse.data);
                     return fs.createReadStream(imagePath);
