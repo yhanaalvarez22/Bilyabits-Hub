@@ -1,5 +1,5 @@
 const fs = require("fs");
-const login = require("chatbox-fca-remake");
+const login = require("ws3-fca");
 const express = require("express");
 const app = express();
 
