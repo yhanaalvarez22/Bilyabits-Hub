@@ -4,7 +4,7 @@ const fs = require('fs');
 module.exports = {
     name: "pinterest",
     description: "Fetch Pinterest URLs based on user prompt and convert them into photo attachments",
-    async execute(api, event, args) {
+    async execute(api, event) {
         const message = event.body.trim();
         const prefix = `${config.prefix}ai`;
         const question = message.slice(prefix.length).trim();
