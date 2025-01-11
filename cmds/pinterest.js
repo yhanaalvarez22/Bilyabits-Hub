@@ -19,7 +19,7 @@ module.exports = {
         api.sendMessage("Fetching images from Pinterest, please wait...", event.threadID, event.messageID);
 
         try {
-            const response = await axios.get(`https://api.joshweb.click/api/pinterest?q=${encodeURIComponent(prompt)}`);
+            const response = await axios.get(`https://ajiro.gleeze.com/api/pinterest?text=${encodeURIComponent(prompt)}`);
             if (response.data.status === 200 && response.data.result.length > 0) {
                 const dumpDir = './dump';
                 if (!fs.existsSync(dumpDir)) {
