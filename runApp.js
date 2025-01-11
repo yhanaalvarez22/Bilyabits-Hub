@@ -14,10 +14,9 @@ console.log("=====COMMANDS LOADED=====");
 console.log("====={}=====");
 commandFiles.forEach(file => {
     console.log(`[~] ${file.replace('.js', '')}`);
-    
 });
 console.log("====={}=====");
-console.log("\n\n\n")
+console.log("\n\n\n");
 
 // Determine login method
 let loginCredentials;
@@ -26,7 +25,7 @@ if (config.loginMethod.email && config.loginMethod.password) {
         email: config.loginMethod.email,
         password: config.loginMethod.password
     };
-} else if (config.loginMethod.appstate) {
+} else if (config.loginMethod.appstate && Object.keys(config.loginMethod.appstate).length !== 0) {
     loginCredentials = {
         appState: config.loginMethod.appstate
     };
