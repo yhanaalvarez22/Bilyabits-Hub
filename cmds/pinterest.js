@@ -20,14 +20,14 @@ module.exports = {
 
         try {
             const response = await axios.get(`https://ajiro.gleeze.com/api/pinterest?text=${encodeURIComponent(prompt)}`);
-            if (response.data.status === 200 && response.data.result.length > 0) {
+            if (response.data.status && response.data.result.length > 0) {
                 const dumpDir = './dump';
                 if (!fs.existsSync(dumpDir)) {
                     fs.mkdirSync(dumpDir);
                 }
 
                 const attachments = await Promise.all(response.data.result.map(async (url, index) => {
-                    const imagePath = path.join(dumpDir, `pinterest${index}.jpg`);
+                    const imagePath = path.join(dumpDir, `pinterest${index}.jpeg`);
                     const imageResponse = await axios.get(url, { responseType: 'arraybuffer' });
                     fs.writeFileSync(imagePath, imageResponse.data);
                     return fs.createReadStream(imagePath);
