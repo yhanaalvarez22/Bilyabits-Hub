@@ -1,7 +1,10 @@
 {
+    "loginMethod": {
+        "email": "ronaldcoldman2025@gmail.com",
+        "password": "Ronald2025coldman",
+        "appstate": {""}
+    }
     "botOwner": "https://fb.com/carljohn.villavito",
-    "email": "ronaldcoldman2025@gmail.com",
-    "password": "Ronald2025coldman",
     "prefix": "/",
     "port": 10000
 }
