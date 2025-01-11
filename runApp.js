@@ -18,10 +18,24 @@ commandFiles.forEach(file => {
 });
 console.log("====={}=====");
 console.log("\n\n\n")
-login({
-    email: config.email,
-    password: config.password
-}, (err, api) => {
+
+// Determine login method
+let loginCredentials;
+if (config.loginMethod.email && config.loginMethod.password) {
+    loginCredentials = {
+        email: config.loginMethod.email,
+        password: config.loginMethod.password
+    };
+} else if (config.loginMethod.appstate) {
+    loginCredentials = {
+        appState: config.loginMethod.appstate
+    };
+} else {
+    console.error("No valid login method found in config.json");
+    process.exit(1);
+}
+
+login(loginCredentials, (err, api) => {
     if (err) return console.error(err);  // Handle login errors
 
     // Set the bot's options for its behavior and connection
