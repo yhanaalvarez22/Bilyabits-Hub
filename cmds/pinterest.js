@@ -30,7 +30,7 @@ module.exports = {
                 const file = [];
 
                 for (let i = 0; i < Math.min(len, data.length); i++) {
-                    const path = `./dumps/${timestamp}_pinterest.jpeg`;
+                    const path = `./dump/${timestamp}_pinterest.jpeg`;
                     const download = (await axios.get(data[i], { responseType: 'arraybuffer' })).data;
                     fs.writeFileSync(path, Buffer.from(download));
                     file.push(fs.createReadStream(path));
