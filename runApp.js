@@ -71,29 +71,29 @@ login(loginCredentials, (err, api) => {
     updateBotBio(api);
 
     // Function to handle commands
-    function handleCommand(event) {
-        const prefix = config.prefix;
-        const message = event.body;
+function handleCommand(event) {
+    const prefix = config.prefix;
+    const message = event.body;
 
-        if (!message.startsWith(prefix)) return;
+    if (!message.startsWith(prefix)) return;
 
-        const args = message.slice(prefix.length).trim().split(/ +/);
-        const commandName = args.shift().toLowerCase();
+    const args = message.slice(prefix.length).split(/ +/); // Removed .trim()
+    const commandName = args.shift().toLowerCase();
 
-        if (!commandName) {
-            api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
-            return;
-        }
-
-        if (!commandFiles.includes(`${commandName}.js`)) {
-            api.sendMessage("This command is not available or it is invalid.", event.threadID);
-            return;
-        }
-
-        // Load and execute the command
-        const commandFile = require(`./cmds/${commandName}.js`);
-        commandFile.execute(api, event, args);
+    if (!commandName) {
+        api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
+        return;
     }
+
+    if (!commandFiles.includes(`${commandName}.js`)) {
+        api.sendMessage("This command is not available or it is invalid.", event.threadID);
+        return;
+    }
+
+    // Load and execute the command
+    const commandFile = require(`./cmds/${commandName}.js`);
+    commandFile.execute(api, event, args); // args is still passed to the command
+}
 
     // Start listening for incoming messages and events with detailed logging
     const stopListening = api.listenMqtt((err, event) => {
