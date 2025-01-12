@@ -1,7 +1,7 @@
 # Bilyabits-Hub
 
 ## Introduction
-Bilyabits-Hub is a facebook chat bot automated with various commands to help you access the bot freely that uses a fca api called #WS3-FCA.
+Bilyabits-Hub is a facebook chat bot automated with various commands to help you access the bot freely that uses a fca api called **WS3-FCA.**
 
 
 ## Credits
