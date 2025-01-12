@@ -6,9 +6,12 @@ module.exports = {
     name: 'flux',
     description: 'Generate an AI image based on a prompt and model selection',
     async execute(api, event, args) {
-        const modelIndex = args.indexOf('-');
-        const model = modelIndex !== -1 ? args[modelIndex + 1] : null;
-        const prompt = modelIndex !== -1 ? args.slice(0, modelIndex).join(' ') : args.join(' ');
+        // Check if the last argument starts with a hyphen for model selection
+        const modelArg = args.pop(); // Get the last argument
+        const model = modelArg.startsWith('-') ? modelArg.slice(1) : null; // Remove the hyphen
+        
+        // Join remaining arguments as the prompt
+        const prompt = args.join(' ');
 
         // Validate prompt and model
         if (!prompt || !model || isNaN(model) || model < 1 || model > 5) {
