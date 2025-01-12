@@ -9,9 +9,15 @@ module.exports = {
     async execute(api, event, args) {
         const input = args.join(' ').trim();
 
-        const lastSpaceIndex = input.lastIndexOf(' ');
-        const prompt = input.substring(0, lastSpaceIndex).trim();
-        const model = input.substring(lastSpaceIndex + 1);
+        // Check if there's a dash before the model number
+        const modelIndex = input.lastIndexOf(' -');
+        if (modelIndex === -1) {
+            api.sendMessage(`Please enter a prompt and model.\nUsage: ${config.prefix}flux <describe prompt> -<model>`, event.threadID, event.messageID);
+            return;
+        }
+
+        const prompt = input.substring(0, modelIndex).trim();
+        const model = input.substring(modelIndex + 2).trim(); // Skip the ' -'
 
         if (!prompt || !model) {
             api.sendMessage(`Please enter a prompt and model.\nUsage: ${config.prefix}flux <describe prompt> -<model>`, event.threadID, event.messageID);
