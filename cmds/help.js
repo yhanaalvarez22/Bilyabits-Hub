@@ -10,7 +10,7 @@ module.exports = {
 
         commandFiles.forEach(file => {
             const command = require(`./${file}`);
-            message += `[~] ${command.name}\n     [°°°] ${command.description}\n\n`;
+            message += `[~] ${command.name}\n[°°°] ${command.description}\n\n`;
         });
         api.sendMessage(message, event.threadID);
     }
