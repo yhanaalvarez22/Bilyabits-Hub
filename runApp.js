@@ -38,21 +38,20 @@ if (appState && appState.length !== 0) {
     process.exit(1);
 }
 
-
 login(loginCredentials, (err, api) => {
     if (err) return console.error(err);  // Handle login errors
 
     // Set the bot's options for its behavior and connection
     api.setOptions({
-        forceLogin: true,  // Force login even if the session is active
-        listenEvents: true,  // Enable event listening
-        logLevel: "silent",  // Set log level to silent (no logs)
-        updatePresence: true,  // Keep the presence (status) updated
-        selfListen: false,  // Do not listen to the bot's own messages
-        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0",  // Set custom user agent for the bot
-        online: true,  // Keep the bot online or Set it to true if you want to see bots online status.
-        autoMarkDelivery: true,  // Disable auto marking of delivery status
-        autoMarkRead: true  // Disable auto marking of messages as read
+        forceLogin: true,
+        listenEvents: true,
+        logLevel: "silent",
+        updatePresence: true,
+        selfListen: false,
+        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0",
+        online: true,
+        autoMarkDelivery: true,
+        autoMarkRead: true
     });
 
     // Function to change bot's bio
@@ -69,31 +68,44 @@ login(loginCredentials, (err, api) => {
 
     // Call the function to update bot's bio after login
     updateBotBio(api);
+    console.log("[ Bilyabits-Hub ] Refreshing fb_dtsg every 20 minutes");
+    
+    // Notify the user that the bot is online with basic information
+    const adminUserThread = config.adminID; // Admin user thread ID
+    const botID = api.getCurrentUserID();
+    api.sendMessage(`I am online!\nBot Owner Name: ${config.botOwnerName}\nBot ID: ${botID}`, adminUserThread);
+
+    // Function to refresh fb_dtsg every 20-30 minutes
+    const refreshInterval = 20 * 60 * 1000; // 20 minutes in milliseconds
+    setInterval(() => {
+        api.refreshFb_dtsg(); // Call the refresh function
+        console.log("Refreshed fb_dtsg at:", new Date().toLocaleString()); // Log the event
+    }, refreshInterval);
 
     // Function to handle commands
-function handleCommand(event) {
-    const prefix = config.prefix;
-    const message = event.body;
+    function handleCommand(event) {
+        const prefix = config.prefix;
+        const message = event.body;
 
-    if (!message.startsWith(prefix)) return;
+        if (!message.startsWith(prefix)) return;
 
-    const args = message.slice(prefix.length).split(/ +/); // Removed .trim()
-    const commandName = args.shift().toLowerCase();
+        const args = message.slice(prefix.length).split(/ +/);
+        const commandName = args.shift().toLowerCase();
 
-    if (!commandName) {
-        api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
-        return;
+        if (!commandName) {
+            api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
+            return;
+        }
+
+        if (!commandFiles.includes(`${commandName}.js`)) {
+            api.sendMessage("This command is not available or it is invalid.", event.threadID);
+            return;
+        }
+
+        // Load and execute the command
+        const commandFile = require(`./cmds/${commandName}.js`);
+        commandFile.execute(api, event, args);
     }
-
-    if (!commandFiles.includes(`${commandName}.js`)) {
-        api.sendMessage("This command is not available or it is invalid.", event.threadID);
-        return;
-    }
-
-    // Load and execute the command
-    const commandFile = require(`./cmds/${commandName}.js`);
-    commandFile.execute(api, event, args); // args is still passed to the command
-}
 
     // Start listening for incoming messages and events with detailed logging
     const stopListening = api.listenMqtt((err, event) => {
@@ -110,6 +122,10 @@ function handleCommand(event) {
                 break;
         }
     });
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 // Define a simple route
