@@ -38,9 +38,6 @@ if (appState && appState.length !== 0) {
     process.exit(1);
 }
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
 
 login(loginCredentials, (err, api) => {
     if (err) return console.error(err);  // Handle login errors
@@ -55,7 +52,7 @@ login(loginCredentials, (err, api) => {
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0",  // Set custom user agent for the bot
         online: true,  // Keep the bot online or Set it to true if you want to see bots online status.
         autoMarkDelivery: true,  // Disable auto marking of delivery status
-        autoMarkRead: false  // Disable auto marking of messages as read
+        autoMarkRead: true  // Disable auto marking of messages as read
     });
 
     // Function to change bot's bio
@@ -98,16 +95,18 @@ login(loginCredentials, (err, api) => {
         commandFile.execute(api, event, args);
     }
 
-    // Start listening for incoming messages and events
+    // Start listening for incoming messages and events with detailed logging
     const stopListening = api.listenMqtt((err, event) => {
-        if (err) return console.error(err);  // Handle any errors while listening
+        if (err) return console.error("Error while listening:", err);  // Handle any errors while listening
+
+        console.log("Event received:", event);  // Log all events for debugging
 
         switch (event.type) {
             case "message":
                 handleCommand(event);
                 break;
             case "event":
-                console.log(event);  // Log any other event type
+                console.log("Other event type:", event);  // Log any other event type
                 break;
         }
     });
