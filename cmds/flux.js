@@ -6,10 +6,11 @@ module.exports = {
     name: 'flux',
     description: 'Generate an AI image based on a prompt and model selection',
     async execute(api, event, args) {
-        const promptIndex = args.indexOf('-');
-        const model = promptIndex !== -1 ? args[promptIndex + 1] : null;
-        const prompt = promptIndex !== -1 ? args.slice(0, promptIndex).join(' ') : args.join(' ');
+        const modelIndex = args.indexOf('-');
+        const model = modelIndex !== -1 ? args[modelIndex + 1] : null;
+        const prompt = modelIndex !== -1 ? args.slice(0, modelIndex).join(' ') : args.join(' ');
 
+        // Validate prompt and model
         if (!prompt || !model || isNaN(model) || model < 1 || model > 5) {
             api.sendMessage(`Usage: ${config.prefix}flux <prompt> -<model (1-5)>`, event.threadID);
             return;
