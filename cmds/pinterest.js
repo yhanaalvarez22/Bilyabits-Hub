@@ -11,11 +11,11 @@ module.exports = {
         const prompt = args.join(' '); // Combine arguments into a single prompt
 
         if (!prompt) {
-            api.sendMessage(`Please provide a prompt.\nUsage: ${config.prefix}pinterest <your prompt>`, event.threadID);
+            api.sendMessage(`Please provide a prompt.\nUsage: ${config.prefix}pinterest <your prompt>`, event.threadID, event.messageID);
             return;
         }
 
-        api.sendMessage("Fetching images, please wait...", event.threadID);
+        api.sendMessage("Fetching image(s), please wait...", event.threadID, event.messageID);
 
         try {
             // Fetch images from the Pinterest API
@@ -26,7 +26,7 @@ module.exports = {
                 const images = response.data.result;
 
                 if (images.length === 0) {
-                    api.sendMessage("No images found for the given prompt.", event.threadID);
+                    api.sendMessage("No images found for the given prompt.", event.threadID, event.messageID);
                     return;
                 }
 
@@ -47,8 +47,9 @@ module.exports = {
                 // Send all images back to the user in one message
                 const attachments = imagePaths.map(imagePath => fs.createReadStream(imagePath));
 
+                // Send the message with attachments
                 api.sendMessage({
-                    body: "Here are the images based on your prompt:",
+                    body: `Here are the images for "${prompt}":`,
                     attachment: attachments // Send all images as attachments
                 }, event.threadID, (err) => {
                     // Clean up the temporary files after sending
@@ -58,11 +59,11 @@ module.exports = {
                     }
                 });
             } else {
-                api.sendMessage("Failed to fetch images. Please try again later.", event.threadID);
+                api.sendMessage("Failed to fetch images. Please try again later.", event.threadID, event.messageID);
             }
         } catch (error) {
             console.error("Error fetching images:", error);
-            api.sendMessage("There was an error processing your request. Please try again later.", event.threadID);
+            api.sendMessage("There was an error processing your request. Please try again later.", event.threadID, event.messageID);
         }
     }
 };
