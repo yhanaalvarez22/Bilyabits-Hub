@@ -6,7 +6,7 @@ module.exports = {
     name: 'ai',
     description: 'Ask an AI question',
     async execute(api, event, args) {
-        const question = args.join(' ').trim();
+        const question = args.join(' ');
 
         if (!question) {
             api.sendMessage(`Please enter a question.\nUsage: ${config.prefix}ai <your question>`, event.threadID);
