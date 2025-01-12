@@ -2,29 +2,42 @@ const axios = require('axios');
 const fs = require('fs');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
+// Define the allowed models
+const allowedModels = ['1', '2', '3', '4', '5'];
+
 module.exports = {
     name: 'flux',
-    description: 'Generate an AI image based on a prompt and model selection',
+    description: 'Generate an image based on a prompt with a specified model',
     async execute(api, event, args) {
-        // Check if the last argument starts with a hyphen for model selection
-        const modelArg = args.pop(); // Get the last argument
-        const model = modelArg.startsWith('-') ? modelArg.slice(1) : null; // Remove the hyphen
-        
-        // Join remaining arguments as the prompt
-        const prompt = args.join(' ');
+        // Check if the user provided a prompt
+        if (args.length < 2 || !args.includes('-')) {
+            api.sendMessage(`Please provide a prompt and a model.\nUsage: ${config.prefix}flux <prompt> -<model>`, event.threadID);
+            return;
+        }
 
-        // Validate prompt and model
-        if (!prompt || !model || isNaN(model) || model < 1 || model > 5) {
-            api.sendMessage(`Usage: ${config.prefix}flux <prompt> -<model (1-5)>`, event.threadID);
+        // Extract the prompt and model from the arguments
+        const modelIndex = args.indexOf('-');
+        const prompt = args.slice(0, modelIndex).join(' ');
+        const model = args[modelIndex + 1]; // Get the model parameter
+
+        // Validate the model
+        if (!allowedModels.includes(model)) {
+            api.sendMessage(`Invalid model specified. Allowed models are: ${allowedModels.join(', ')}`, event.threadID);
             return;
         }
 
         api.sendMessage("Generating your image...", event.threadID);
 
         try {
-            const response = await axios.get(`https://api.joshweb.click/api/flux?prompt=${encodeURIComponent(prompt)}&model=${model}`);
-            if (response.data && response.data.imageUrl) {
-                api.sendMessage({ body: `Here is your generated image:`, attachment: response.data.imageUrl }, event.threadID);
+            // Call the image generation API
+            const response = await axios.get(`https://api.joshweb.click/api/flux?prompt=${encodeURIComponent(prompt)}&model=${encodeURIComponent(model)}`);
+            
+            // Check if the response is valid
+            if (response.data && response.data.image) {
+                api.sendMessage({
+                    body: "Here is your generated image:",
+                    attachment: response.data.image // Assuming the API returns a direct image URL
+                }, event.threadID);
             } else {
                 api.sendMessage("There was an error generating your image. Please try again later.", event.threadID);
             }
