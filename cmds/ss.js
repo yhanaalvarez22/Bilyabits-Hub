@@ -1,6 +1,7 @@
 // /cmds/ss.js
 const axios = require('axios');
 const fs = require('fs');
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = {
     name: 'ss',
