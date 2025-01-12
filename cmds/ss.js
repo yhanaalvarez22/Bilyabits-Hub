@@ -7,7 +7,7 @@ module.exports = {
     name: 'ss',
     description: 'Take a screenshot of a website based on the provided URL',
     async execute(api, event, args) {
-        const url = args.join(' ').trim();
+        const url = args.join(' ');
 
         if (!url) {
             api.sendMessage(`Please provide a URL.\nUsage: ${config.prefix}ss <url>`, event.threadID);
