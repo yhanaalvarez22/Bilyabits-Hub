@@ -19,12 +19,14 @@ module.exports = {
             const imagePromises = [];
             for (let i = 1; i <= 5; i++) {
                 imagePromises.push(
-                    axios.get(`https://api.joshweb.click/api/flux?prompt=${encodeURIComponent(prompt)}&model=${i}`)
+                    axios.get(`https://api.joshweb.click/api/flux?prompt=${encodeURIComponent(prompt)}&model=${i}`, {
+                        responseType: 'arraybuffer'
+                    })
                 );
             }
 
             const responses = await Promise.all(imagePromises);
-            const images = responses.map(response => response.data.imageUrl);
+            const images = responses.map(response => Buffer.from(response.data, 'binary'));
 
             api.sendMessage({
                 body: `Images generated for prompt: ${prompt}`,
