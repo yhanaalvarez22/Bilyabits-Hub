@@ -80,21 +80,22 @@ login(loginCredentials, (err, api) => {
 
         if (!message.startsWith(prefix)) return;
 
-        const command = message.slice(prefix.length).trim().split(/ +/).shift().toLowerCase();
+        const args = message.slice(prefix.length).trim().split(/ +/);
+        const commandName = args.shift().toLowerCase();
 
-        if (!command) {
+        if (!commandName) {
             api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
             return;
         }
 
-        if (!commandFiles.includes(`${command}.js`)) {
+        if (!commandFiles.includes(`${commandName}.js`)) {
             api.sendMessage("This command is not available or it is invalid.", event.threadID);
             return;
         }
 
         // Load and execute the command
-        const commandFile = require(`./cmds/${command}.js`);
-        commandFile.execute(api, event);
+        const commandFile = require(`./cmds/${commandName}.js`);
+        commandFile.execute(api, event, args);
     }
 
     // Start listening for incoming messages and events
