@@ -9,7 +9,7 @@ module.exports = {
     async execute(api, event, args) {
         const input = args.join(' ').trim();
 
-        // Check if there's a dash before the model number
+        // Check if there's a space followed by a dash before the model number
         const modelIndex = input.lastIndexOf(' -');
         if (modelIndex === -1) {
             api.sendMessage(`Please enter a prompt and model.\nUsage: ${config.prefix}flux <describe prompt> -<model>`, event.threadID, event.messageID);
