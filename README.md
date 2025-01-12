@@ -24,7 +24,7 @@ Bilyabits-Hub is a facebook chat bot automated with various commands to help you
 
 4. **Install Dependencies:**
    ```
-   npm install fs express chatbox-fca-remake axios fs-extra stream
+   npm install fs express ws3-fca@latest axios fs-extra stream npmlog && npm update ws3-fca@1.0.40
    ```
 5. **Run the project/Build Commannd:**
    ```
