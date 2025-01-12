@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
+const path = require('path');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = {
@@ -26,7 +27,11 @@ module.exports = {
             }
 
             const responses = await Promise.all(imagePromises);
-            const images = responses.map(response => Buffer.from(response.data, 'binary'));
+            const images = responses.map((response, index) => {
+                const imagePath = path.join(__dirname, '..', 'dumps', `image_${index + 1}.png`);
+                fs.writeFileSync(imagePath, response.data);
+                return fs.createReadStream(imagePath);
+            });
 
             api.sendMessage({
                 body: `Images generated for prompt: ${prompt}`,
