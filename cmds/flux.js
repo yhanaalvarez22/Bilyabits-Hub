@@ -1,46 +1,31 @@
 const axios = require('axios');
 const fs = require('fs');
-const path = require('path');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = {
     name: 'flux',
-    description: 'Generate AI images based on a prompt',
+    description: 'Generate an AI image based on a prompt and model selection',
     async execute(api, event, args) {
-        const input = args.join(' ').trim();
+        const promptIndex = args.indexOf('-');
+        const model = promptIndex !== -1 ? args[promptIndex + 1] : null;
+        const prompt = promptIndex !== -1 ? args.slice(0, promptIndex).join(' ') : args.join(' ');
 
-        // Check if there's a space followed by a dash before the model number
-        const modelIndex = input.lastIndexOf(' -');
-        if (modelIndex === -1) {
-            api.sendMessage(`Please enter a prompt and model.\nUsage: ${config.prefix}flux <describe prompt> -<model>`, event.threadID, event.messageID);
+        if (!prompt || !model || isNaN(model) || model < 1 || model > 5) {
+            api.sendMessage(`Usage: ${config.prefix}flux <prompt> -<model (1-5)>`, event.threadID);
             return;
         }
 
-        const prompt = input.substring(0, modelIndex).trim();
-        const model = input.substring(modelIndex + 2).trim(); // Skip the ' -'
-
-        if (!prompt || !model) {
-            api.sendMessage(`Please enter a prompt and model.\nUsage: ${config.prefix}flux <describe prompt> -<model>`, event.threadID, event.messageID);
-            return;
-        }
-
-        api.sendMessage("Generating image...", event.threadID, event.messageID);
+        api.sendMessage("Generating your image...", event.threadID);
 
         try {
-            const response = await axios.get(`https://api.joshweb.click/api/flux?prompt=${encodeURIComponent(prompt)}&model=${model}`, {
-                responseType: 'arraybuffer'
-            });
-
-            const imagePath = path.join(__dirname, '..', 'dumps', `image_${Date.now()}.png`);
-            fs.writeFileSync(imagePath, response.data);
-            const imageStream = fs.createReadStream(imagePath);
-
-            api.sendMessage({
-                body: `Image generated for prompt: ${prompt}`,
-                attachment: imageStream
-            }, event.threadID);
+            const response = await axios.get(`https://api.joshweb.click/api/flux?prompt=${encodeURIComponent(prompt)}&model=${model}`);
+            if (response.data && response.data.imageUrl) {
+                api.sendMessage({ body: `Here is your generated image:`, attachment: response.data.imageUrl }, event.threadID);
+            } else {
+                api.sendMessage("There was an error generating your image. Please try again later.", event.threadID);
+            }
         } catch (error) {
-            api.sendMessage("There was an error generating the image. Please try again later.", event.threadID, event.messageID);
+            api.sendMessage("There was an error processing your request. Please try again later.", event.threadID);
         }
     }
 };
