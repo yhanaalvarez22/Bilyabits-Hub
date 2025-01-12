@@ -29,17 +29,12 @@ console.log("\n\n\n");
 
 // Determine login method
 let loginCredentials;
-if (config.loginMethod.email && config.loginMethod.password) {
-    loginCredentials = {
-        email: config.loginMethod.email,
-        password: config.loginMethod.password
-    };
-} else if (appState && appState.length !== 0) {
+if (appState && appState.length !== 0) {
     loginCredentials = {
         appState: appState
     };
 } else {
-    console.error("No valid login method found in config.json or appstate.json");
+    console.error("No valid login method found in appstate.json");
     process.exit(1);
 }
 
