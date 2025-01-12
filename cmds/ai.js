@@ -5,10 +5,8 @@ const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 module.exports = {
     name: 'ai',
     description: 'Ask an AI question',
-    async execute(api, event) {
-        const message = event.body.trim();
-        const prefix = `${config.prefix}ai`;
-        const question = message.slice(prefix.length).trim();
+    async execute(api, event, args) {
+        const question = args.join(' ').trim();
 
         if (!question) {
             api.sendMessage(`Please enter a question.\nUsage: ${config.prefix}ai <your question>`, event.threadID);
