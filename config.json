@@ -1,8 +1,4 @@
 {
-    "loginMethod": {
-        "email": "",
-        "password": ""
-    },
     "botOwner": "https://fb.com/carljohn.villavito",
     "prefix": "/",
     "port": 10000
