@@ -5,7 +5,7 @@ Bilyabits-Hub is a facebook chat bot automated with various commands to help you
 
 
 ## Credits
-`FCA:`  [Click here](https://www.npmjs.com/package/ws3-fca)
+`WS3-FCA:`  [Click here](https://www.npmjs.com/package/ws3-fca)
 
 ## How to Set It Up
 1. **Clone the Repository(For developmental use only):**
