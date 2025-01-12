@@ -10,19 +10,15 @@ module.exports = {
     description: 'Generate an image based on a prompt with a specified model',
     async execute(api, event, args) {
         // Check if the user provided a prompt
-        if (args.length < 2 || !args.includes('-')) {
-            api.sendMessage(`Please provide a prompt and a model.\nUsage: ${config.prefix}flux <prompt> -<model>`, event.threadID);
-            return;
-        }
+        const modelArgIndex = args.indexOf('-');
+        const model = modelArgIndex !== -1 ? args[modelArgIndex + 1] : null;
 
-        // Extract the prompt and model from the arguments
-        const modelIndex = args.indexOf('-');
-        const prompt = args.slice(0, modelIndex).join(' ');
-        const model = args[modelIndex + 1]; // Get the model parameter
+        // Join the prompt arguments
+        const prompt = modelArgIndex !== -1 ? args.slice(0, modelArgIndex).join(' ') : args.join(' ');
 
         // Validate the model
-        if (!allowedModels.includes(model)) {
-            api.sendMessage(`Invalid model specified. Allowed models are: ${allowedModels.join(', ')}`, event.threadID);
+        if (!model || !allowedModels.includes(model)) {
+            api.sendMessage(`Invalid model specified. Usage: ${config.prefix}flux <prompt> -<model>\nAllowed models are: ${allowedModels.join(', ')}`, event.threadID);
             return;
         }
 
