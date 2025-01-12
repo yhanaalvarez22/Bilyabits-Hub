@@ -1,5 +1,16 @@
 # Bilyabits-Hub
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Credits](#credits)
+- [How to Set It Up](#how-to-set-it-up)
+  - [Clone the Repository](#clone-the-repositoryfor-developmental-use-only)
+  - [Config.json Settings](#configjson-settings)
+  - [Root Directory](#root-directory)
+  - [Install Dependencies](#install-dependencies)
+  - [Run the project/Build Command](#run-the-projectbuild-command)
+- [Contacts](#contacts)
+
 ## Introduction
 Bilyabits-Hub is a facebook chat bot automated with various commands to help you access the bot freely that uses a fca api called **WS3-FCA.**
 
