@@ -10,11 +10,11 @@ module.exports = {
         const url = args.join(' ');
 
         if (!url) {
-            api.sendMessage(`Please provide a URL.\nUsage: ${config.prefix}ss <url>`, event.threadID);
+            api.sendMessage(`Please provide a URL.\nUsage: ${config.prefix}ss <url>`, event.threadID, event.messageID);
             return;
         }
 
-        api.sendMessage("Taking a screenshot, please wait...", event.threadID);
+        api.sendMessage("Taking a screenshot, please wait...", event.threadID, event.messageID);
 
         try {
             // Fetch the screenshot from the API
@@ -43,11 +43,11 @@ module.exports = {
                     }
                 });
             } else {
-                api.sendMessage("Failed to take a screenshot. Please try again later.", event.threadID);
+                api.sendMessage("Failed to take a screenshot. Please try again later.", event.threadID, event.messageID);
             }
         } catch (error) {
             console.error("Error fetching screenshot:", error);
-            api.sendMessage("There was an error processing your request. Please try again later.", event.threadID);
+            api.sendMessage("There was an error processing your request. Please try again later.", event.threadID, event.messageID);
         }
     }
 };
