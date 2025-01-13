@@ -1,6 +1,7 @@
 # Bilyabits-Hub
 
 ## Table of Contents
+- [Update Log](#update-log)
 - [Introduction](#introduction)
 - [Credits](#credits)
 - [How to Set It Up](#how-to-set-it-up)
