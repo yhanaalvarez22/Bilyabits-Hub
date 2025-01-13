@@ -1,5 +1,5 @@
 # Bilyabits-Hub
-![bilyabits-hub](./img/bilyabits-hub.jpeg)
+![bilyabits-hub](./img/bilyabit-hub.jpeg)
 
 ## Table of Contents
 - [Update Log](#update-log)
