@@ -2,6 +2,7 @@ const fs = require("fs");
 const login = require("ws3-fca");
 const express = require("express");
 const app = express();
+const { restart } = require('./cmds/addcmd'); // Import the restart function
 
 // Load configuration from config.json
 const config = JSON.parse(fs.readFileSync("config.json", "utf8"));
@@ -102,6 +103,11 @@ login(loginCredentials, (err, api) => {
 
         if (!commandName) {
             api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
+            return;
+        }
+
+        if (commandName === 'restart') {
+            restart.execute(api, event, args);
             return;
         }
 
