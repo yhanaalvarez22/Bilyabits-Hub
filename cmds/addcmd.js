@@ -1,70 +1,40 @@
 const fs = require('fs');
 const axios = require('axios');
-const path = require('path');
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = {
     name: 'addcmd',
-    description: 'Add a new command from raw text or a URL',
+    description: 'Add a new command dynamically from raw text or a URL',
     async execute(api, event, args) {
-        const senderID = event.senderID;
-        const adminID = '100013036275290'; // Replace with your admin ID
-
-        // Restrict command usage to the admin
-        if (senderID !== adminID) {
-            return api.sendMessage('You do not have permission to use this command.', event.threadID);
-        }
-
         if (args.length < 2) {
-            return api.sendMessage('Usage:\n/addcmd <filename.js> "<command code>"\n/addcmd <filename.js> <URL>', event.threadID);
+            api.sendMessage(`Usage: ${config.prefix}addcmd <filename> <"command text"> or <url>`, event.threadID, event.messageID);
+            return;
         }
 
         const filename = args[0];
-        const filePath = path.join(__dirname, filename);
+        const input = args.slice(1).join(' ');
 
-        // Check if the file already exists
-        if (fs.existsSync(filePath)) {
-            return api.sendMessage(`The command file ${filename} already exists. Please choose a different name.`, event.threadID);
-        }
-
-        let code = args.slice(1).join(' ');
-
-        // Determine if the second argument is a URL
-        const urlPattern = /^https?:\/\/\S+$/;
-        if (urlPattern.test(code)) {
-            const url = code;
+        // Check if the input is a URL
+        if (input.startsWith('http://') || input.startsWith('https://')) {
             try {
-                const response = await axios.get(url);
-                code = response.data;
+                const response = await axios.get(input);
+                if (response.status === 200) {
+                    // Save the command from the URL
+                    fs.writeFileSync(`./cmds/${filename}`, response.data);
+                    api.sendMessage(`Command added from URL: ${filename}`, event.threadID, event.messageID);
+                } else {
+                    api.sendMessage("Failed to fetch the URL. Please try again.", event.threadID, event.messageID);
+                }
             } catch (error) {
-                return api.sendMessage('Failed to fetch code from the provided URL.', event.threadID);
+                console.error("Error fetching URL:", error);
+                api.sendMessage("There was an error fetching the URL. Please try again later.", event.threadID, event.messageID);
             }
         } else {
-            // Remove surrounding quotes if present
-            code = code.replace(/^"(.*)"$/, '$1');
+            // Treat the input as raw text
+            const commandText = input.replace(/"/g, ''); // Remove quotes if any
+            const commandContent = `module.exports = { name: '${filename.replace('.js', '')}', description: 'Dynamically added command', execute(api, event) { api.sendMessage('${commandText}', event.threadID); } };`;
+            fs.writeFileSync(`./cmds/${filename}`, commandContent);
+            api.sendMessage(`Command added: ${filename}`, event.threadID, event.messageID);
         }
-
-        // Validate the command code
-        if (!code.includes('module.exports')) {
-            return api.sendMessage('Invalid command code. Ensure it follows the correct format.', event.threadID);
-        }
-
-        // Write the command code to a new file
-        try {
-            fs.writeFileSync(filePath, code, 'utf8');
-            api.sendMessage(`Command ${filename} has been added successfully.`, event.threadID);
-        } catch (error) {
-            return api.sendMessage('Failed to add the new command.', event.threadID);
-        }
-
-        // Dynamically load the new command
-        try {
-            const newCommand = require(filePath);
-            api.commands.set(newCommand.name, newCommand);
-            api.sendMessage(`Command ${newCommand.name} is now active.`, event.threadID);
-        } catch (error) {
-            // Remove the file if loading fails
-            fs.unlinkSync(filePath);
-            return api.sendMessage('Failed to load the new command. The file has been removed.', event.threadID);
-        }
-    },
+    }
 };
