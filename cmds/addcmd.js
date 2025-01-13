@@ -33,6 +33,14 @@ module.exports = {
 function saveCommand(commandName, commandCode, api, event) {
     const commandPath = `./cmds/${commandName}.js`;
 
+    // Ensure the command code is valid JavaScript before saving
+    try {
+        new Function(commandCode);
+    } catch (syntaxError) {
+        console.error('Invalid command content:', syntaxError);
+        return api.sendMessage('Failed to save the new command. Invalid JavaScript content.', event.threadID);
+    }
+
     fs.writeFile(commandPath, commandCode, (err) => {
         if (err) {
             console.error('Error saving the command:', err);
