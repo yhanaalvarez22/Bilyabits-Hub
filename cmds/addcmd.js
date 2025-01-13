@@ -1,5 +1,6 @@
 const fs = require('fs');
 const axios = require('axios');
+const vm = require('vm');
 
 module.exports = {
     name: 'addcmd',
@@ -35,7 +36,7 @@ function saveCommand(commandName, commandCode, api, event) {
 
     // Ensure the command code is valid JavaScript before saving
     try {
-        new Function(commandCode);
+        vm.runInNewContext(commandCode, {});
     } catch (syntaxError) {
         console.error('Invalid command content:', syntaxError);
         return api.sendMessage('Failed to save the new command. Invalid JavaScript content.', event.threadID);
