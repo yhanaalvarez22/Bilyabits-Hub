@@ -12,7 +12,7 @@ module.exports = {
             return api.sendMessage('Usage: /addcmd <commandName> <commandContent or URL>', event.threadID);
         }
 
-        if (commandContent.startsWith('http') || (commandContent.startsWith('https')) {
+        if (commandContent.startsWith('http') || commandContent.startsWith('https')) {
             // Handle URL-based command
             axios.get(commandContent)
                 .then(response => {
