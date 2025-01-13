@@ -53,6 +53,6 @@ Bilyabits-Hub is a facebook chat bot automated with various commands to help you
 
 ## Contacts
 For any questions or support, feel free to reach out:
-
+- **Facebook:** https://facebook.com/carljohn.villavito
 - **Email:** carljohnvillavito2023@gmail.com
 - **GitHub Issues:** [Submit an issue](https://github.com/carljohnvillavito/autobot-test/issues)
