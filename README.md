@@ -15,7 +15,7 @@
 ## Update Log 
 ### as of (01/13/2025)
 - **Fixed issues with the Facebook API connection and improved error handling in `runApp.js`.**
-**Added a new feature when the bot is successfully online, the admin will get a notification from the bot as shown in the example.**
+- **Added a new feature when the bot is successfully online, the admin will get a notification from the bot as shown in the example.**
 
 ## Introduction
 Bilyabits-Hub is a facebook chat bot automated with various commands to help you access the bot freely that uses a fca api called **WS3-FCA.**
