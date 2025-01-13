@@ -27,6 +27,13 @@ commandFiles.forEach(file => {
 console.log("====={}=====");
 console.log("\n\n\n");
 
+// Load command modules into an object
+const commands = {};
+commandFiles.forEach(file => {
+    const command = require(`./cmds/${file}`);
+    commands[command.name] = command;
+});
+
 // Determine login method
 let loginCredentials;
 if (appState && appState.length !== 0) {
@@ -76,8 +83,8 @@ login(loginCredentials, (err, api) => {
     const botID = api.getCurrentUserID();
     api.sendMessage(`I am online!\nBot Owner Name: ${config.botOwnerName}\nBot ID: ${botID}`, adminUserThread);
 
-    // Function to refresh fb_dtsg every 20-30 minutes
-    const refreshInterval = 20 * 60 * 1000; // 20 minutes in milliseconds
+    // Function to refresh fb_dtsg every 1 hour
+    const refreshInterval = 60 * 60 * 1000; // 20 minutes in milliseconds
     setInterval(() => {
         api.refreshFb_dtsg(); // Call the refresh function
         console.log("Refreshed fb_dtsg at:", new Date().toLocaleString()); // Log the event
@@ -98,14 +105,18 @@ login(loginCredentials, (err, api) => {
             return;
         }
 
-        if (!commandFiles.includes(`${commandName}.js`)) {
+        if (!commands[commandName]) {
             api.sendMessage("This command is not available or it is invalid.", event.threadID);
             return;
         }
 
-        // Load and execute the command
-        const commandFile = require(`./cmds/${commandName}.js`);
-        commandFile.execute(api, event, args);
+        // Execute the command
+        try {
+            commands[commandName].execute(api, event, args);
+        } catch (error) {
+            console.error(`Error executing command ${commandName}:`, error);
+            api.sendMessage(`There was an error executing the ${commandName} command.`, event.threadID);
+        }
     }
 
     // Start listening for incoming messages and events with detailed logging
