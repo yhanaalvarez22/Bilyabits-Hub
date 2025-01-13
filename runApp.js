@@ -2,7 +2,6 @@ const fs = require("fs");
 const login = require("ws3-fca");
 const express = require("express");
 const app = express();
-const { restart } = require('./cmds/addcmd'); // Import the restart function
 
 // Load configuration from config.json
 const config = JSON.parse(fs.readFileSync("config.json", "utf8"));
@@ -55,12 +54,12 @@ login(loginCredentials, (err, api) => {
         listenEvents: true,
         logLevel: "silent",
         updatePresence: true,
+        bypassRegion: "PNB",
         selfListen: false,
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0",
         online: true,
         autoMarkDelivery: true,
-        autoMarkRead: true,
-        bypassRegion: "PNB"
+        autoMarkRead: true
     });
 
     // Function to change bot's bio
@@ -77,7 +76,7 @@ login(loginCredentials, (err, api) => {
 
     // Call the function to update bot's bio after login
     updateBotBio(api);
-    console.log("[ Bilyabits-Hub ] Refreshing fb_dtsg every 20 minutes");
+    console.log("[ Bilyabits-Hub ] Refreshing fb_dtsg every 1 hour");
     
     // Notify the user that the bot is online with basic information
     const adminUserThread = config.adminID; // Admin user thread ID
@@ -103,11 +102,6 @@ login(loginCredentials, (err, api) => {
 
         if (!commandName) {
             api.sendMessage("No command input, please type `/help` for available commands.", event.threadID);
-            return;
-        }
-
-        if (commandName === 'restart') {
-            restart.execute(api, event, args);
             return;
         }
 
