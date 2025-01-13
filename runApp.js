@@ -54,12 +54,12 @@ login(loginCredentials, (err, api) => {
         listenEvents: true,
         logLevel: "silent",
         updatePresence: true,
-        bypassRegion: "PNB",
         selfListen: false,
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0",
         online: true,
         autoMarkDelivery: true,
-        autoMarkRead: true
+        autoMarkRead: true,
+        bypassRegion: "PNB"
     });
 
     // Function to change bot's bio
